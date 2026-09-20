@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" font-family="Georgia, serif">
+  <rect width="960" height="600" fill="#EDF0DF"/>
+  <line x1="0" y1="56" x2="960" y2="56" stroke="rgba(27,42,34,.14)"/>
+  <text x="36" y="34" font-size="19" fill="#1B2A22" font-weight="600">LabelLens</text>
+
+  <g transform="translate(230,0)">
+  <text x="0" y="106" font-size="26" fill="#1B2A22" font-weight="600">Ravva Ladoo, 200g pack</text>
+  <text x="0" y="128" font-size="12" fill="#1B2A2273" font-family="Arial, sans-serif">Per serving: 45 g</text>
+
+  <!-- FSSAI card -->
+  <text x="0" y="164" font-size="13" fill="#1B2A2273" font-family="Arial, sans-serif" font-weight="700">FSSAI NUMBER</text>
+  <rect x="0" y="174" width="500" height="64" rx="14" fill="#F6F7EE" stroke="rgba(27,42,34,.14)"/>
+  <circle cx="34" cy="206" r="19" fill="#E1EADD"/>
+  <text x="34" y="212" font-size="16" fill="#3F6C4C" text-anchor="middle">✓</text>
+  <text x="66" y="202" font-size="15" fill="#1B2A22" font-family="Arial, sans-serif" font-weight="700">12345678901234</text>
+  <text x="66" y="220" font-size="11.5" fill="#1B2A22B3" font-family="Arial, sans-serif">Valid 14-digit FSSAI structure.</text>
+
+  <!-- nutrient rows -->
+  <text x="0" y="276" font-size="13" fill="#1B2A2273" font-family="Arial, sans-serif" font-weight="700">NUTRIENTS VS. DAILY LIMIT</text>
+
+  <text x="4" y="306" font-size="11" fill="#1B2A22">◆</text>
+  <text x="20" y="306" font-size="13" fill="#1B2A22" font-family="Arial, sans-serif" font-weight="600">Sugar</text>
+  <text x="20" y="320" font-size="10.5" fill="#1B2A2273" font-family="Arial, sans-serif">15g per serving</text>
+  <rect x="150" y="300" width="260" height="9" rx="5" fill="#E3E7D2"/>
+  <rect x="150" y="300" width="200" height="9" rx="5" fill="#9E3324"/>
+  <text x="470" y="308" font-size="13" fill="#9E3324" font-family="Arial, sans-serif" font-weight="700" text-anchor="end">30%</text>
+
+  <text x="4" y="346" font-size="11" fill="#1B2A22">■</text>
+  <text x="20" y="346" font-size="13" fill="#1B2A22" font-family="Arial, sans-serif" font-weight="600">Sodium</text>
+  <text x="20" y="360" font-size="10.5" fill="#1B2A2273" font-family="Arial, sans-serif">180mg per serving</text>
+  <rect x="150" y="340" width="260" height="9" rx="5" fill="#E3E7D2"/>
+  <rect x="150" y="340" width="60" height="9" rx="5" fill="#3F6C4C"/>
+  <text x="470" y="348" font-size="13" fill="#3F6C4C" font-family="Arial, sans-serif" font-weight="700" text-anchor="end">9%</text>
+
+  <text x="4" y="386" font-size="11" fill="#1B2A22">●</text>
+  <text x="20" y="386" font-size="13" fill="#1B2A22" font-family="Arial, sans-serif" font-weight="600">Saturated fat</text>
+  <text x="20" y="400" font-size="10.5" fill="#1B2A2273" font-family="Arial, sans-serif">8g per serving</text>
+  <rect x="150" y="380" width="260" height="9" rx="5" fill="#E3E7D2"/>
+  <rect x="150" y="380" width="120" height="9" rx="5" fill="#A9760F"/>
+  <text x="470" y="388" font-size="13" fill="#A9760F" font-family="Arial, sans-serif" font-weight="700" text-anchor="end">36%</text>
+
+  <!-- ingredients -->
+  <text x="0" y="444" font-size="13" fill="#1B2A2273" font-family="Arial, sans-serif" font-weight="700">INGREDIENTS</text>
+  <g font-family="Arial, sans-serif" font-size="11.5" font-weight="600">
+    <rect x="0" y="456" width="72" height="26" rx="13" fill="#F6F7EE" stroke="rgba(27,42,34,.14)"/><text x="36" y="473" text-anchor="middle" fill="#1B2A22">Wheat</text>
+    <rect x="80" y="456" width="90" height="26" rx="13" fill="#F1DAD3"/><text x="125" y="473" text-anchor="middle" fill="#9E3324">Ghee</text>
+    <rect x="178" y="456" width="76" height="26" rx="13" fill="#F6F7EE" stroke="rgba(27,42,34,.14)"/><text x="216" y="473" text-anchor="middle" fill="#1B2A22">Sugar</text>
+    <rect x="262" y="456" width="120" height="26" rx="13" fill="#F3E7CC"/><text x="322" y="473" text-anchor="middle" fill="#A9760F">Cashew nuts</text>
+    <rect x="390" y="456" width="70" height="26" rx="13" fill="#F6F7EE" stroke="rgba(27,42,34,.14)"/><text x="425" y="473" text-anchor="middle" fill="#1B2A22">Cardamom</text>
+  </g>
+  <rect x="0" y="496" width="410" height="9" rx="5" fill="#E3E7D2"/>
+  <rect x="0" y="496" width="82" height="9" rx="5" fill="#9E3324"/>
+  <rect x="82" y="496" width="123" height="9" rx="5" fill="#A9760F"/>
+  <rect x="205" y="496" width="205" height="9" rx="5" fill="#3F6C4C"/>
+  <text x="0" y="522" font-size="11" fill="#1B2A22" font-family="Arial, sans-serif">● 1 flagged</text>
+  <text x="90" y="522" font-size="11" fill="#1B2A22" font-family="Arial, sans-serif">● 1 caution</text>
+  <text x="180" y="522" font-size="11" fill="#1B2A22" font-family="Arial, sans-serif">● 3 clear</text>
+
+  <rect x="0" y="548" width="140" height="40" rx="20" fill="#1B2A22"/>
+  <text x="70" y="573" font-size="12" fill="#EDF0DF" text-anchor="middle" font-family="Arial, sans-serif" font-weight="600">Log this scan</text>
+  </g>
+</svg>

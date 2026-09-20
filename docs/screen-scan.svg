@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" font-family="Georgia, serif">
+  <rect width="960" height="600" fill="#EDF0DF"/>
+  <line x1="0" y1="56" x2="960" y2="56" stroke="rgba(27,42,34,.14)"/>
+  <text x="36" y="34" font-size="19" fill="#1B2A22" font-weight="600">LabelLens</text>
+
+  <g transform="translate(330,0)">
+  <text x="0" y="108" font-size="26" fill="#1B2A22" font-weight="600">Scan a label</text>
+  <text x="0" y="132" font-size="13" fill="#1B2A22B3" font-family="Arial, sans-serif">Fill the frame with the ingredients and nutrition panel.</text>
+
+  <rect x="0" y="158" width="300" height="220" rx="16" fill="#F6F7EE" stroke="rgba(27,42,34,.28)" stroke-width="1.5" stroke-dasharray="6 6"/>
+  <path d="M150 220v-32m0 0-16 16m16-16 16 16" stroke="#1B2A2273" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M118 220v8a8 8 0 0 0 8 8h48a8 8 0 0 0 8-8v-8" stroke="#1B2A2273" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <text x="150" y="272" font-size="15" fill="#1B2A22" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700">Upload or take a photo</text>
+  <text x="150" y="292" font-size="11.5" fill="#1B2A2273" text-anchor="middle" font-family="Arial, sans-serif">JPG or PNG, back of the packet</text>
+  <rect x="90" y="308" width="120" height="38" rx="19" fill="#1B2A22"/>
+  <text x="150" y="332" font-size="12" fill="#EDF0DF" text-anchor="middle" font-family="Arial, sans-serif" font-weight="600">Choose photo</text>
+  </g>
+</svg>
