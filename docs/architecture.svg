@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 420" font-family="Arial, sans-serif">
+  <rect width="980" height="420" fill="#EDF0DF"/>
+
+  <!-- Browser -->
+  <rect x="30" y="170" width="150" height="80" rx="12" fill="#F6F7EE" stroke="#1B2A22" stroke-width="1.5"/>
+  <text x="105" y="205" font-size="13" font-weight="700" fill="#1B2A22" text-anchor="middle">Browser</text>
+  <text x="105" y="224" font-size="10.5" fill="#1B2A2273" text-anchor="middle">labellens.html</text>
+
+  <path d="M180 210h50" stroke="#1B2A22" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- Amplify -->
+  <rect x="230" y="170" width="160" height="80" rx="12" fill="#F6F7EE" stroke="#3F6C4C" stroke-width="1.5"/>
+  <text x="310" y="200" font-size="12.5" font-weight="700" fill="#1B2A22" text-anchor="middle">AWS Amplify</text>
+  <text x="310" y="217" font-size="12.5" font-weight="700" fill="#1B2A22" text-anchor="middle">Hosting</text>
+  <text x="310" y="236" font-size="10" fill="#1B2A2273" text-anchor="middle">static frontend, HTTPS/CDN</text>
+
+  <path d="M180 210v-70h130" stroke="#1B2A22" stroke-width="2" fill="none"/>
+  <path d="M230 140h140" stroke="#1B2A22" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- API Gateway -->
+  <rect x="430" y="110" width="180" height="70" rx="12" fill="#F6F7EE" stroke="#A9760F" stroke-width="1.5"/>
+  <text x="520" y="140" font-size="12.5" font-weight="700" fill="#1B2A22" text-anchor="middle">Amazon API Gateway</text>
+  <text x="520" y="157" font-size="10" fill="#1B2A2273" text-anchor="middle">HTTP API, two routes</text>
+
+  <path d="M520 180v40" stroke="#1B2A22" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- two lambdas -->
+  <rect x="380" y="250" width="150" height="72" rx="12" fill="#F6F7EE" stroke="#9E3324" stroke-width="1.5"/>
+  <text x="455" y="278" font-size="12" font-weight="700" fill="#1B2A22" text-anchor="middle">AWS Lambda</text>
+  <text x="455" y="295" font-size="11" fill="#1B2A2273" text-anchor="middle">labellens-analyze</text>
+  <text x="455" y="309" font-size="9.5" fill="#1B2A2273" text-anchor="middle">Bedrock call + judgement logic</text>
+
+  <rect x="560" y="250" width="150" height="72" rx="12" fill="#F6F7EE" stroke="#9E3324" stroke-width="1.5"/>
+  <text x="635" y="278" font-size="12" font-weight="700" fill="#1B2A22" text-anchor="middle">AWS Lambda</text>
+  <text x="635" y="295" font-size="11" fill="#1B2A2273" text-anchor="middle">labellens-journal</text>
+  <text x="635" y="309" font-size="9.5" fill="#1B2A2273" text-anchor="middle">DynamoDB log / list</text>
+
+  <path d="M480 180 470 250" stroke="#1B2A22" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <path d="M560 180 600 250" stroke="#1B2A22" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- Bedrock -->
+  <rect x="380" y="345" width="150" height="60" rx="12" fill="#E1EADD" stroke="#3F6C4C" stroke-width="1.5"/>
+  <text x="455" y="370" font-size="12" font-weight="700" fill="#1B2A22" text-anchor="middle">Amazon Bedrock</text>
+  <text x="455" y="387" font-size="9.5" fill="#1B2A2273" text-anchor="middle">amazon.nova-pro-v1:0</text>
+  <path d="M455 322v23" stroke="#1B2A22" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- DynamoDB -->
+  <rect x="560" y="345" width="150" height="60" rx="12" fill="#F3E7CC" stroke="#A9760F" stroke-width="1.5"/>
+  <text x="635" y="370" font-size="12" font-weight="700" fill="#1B2A22" text-anchor="middle">Amazon DynamoDB</text>
+  <text x="635" y="387" font-size="9.5" fill="#1B2A2273" text-anchor="middle">labellens-scans</text>
+  <path d="M635 322v23" stroke="#1B2A22" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- caption box -->
+  <rect x="770" y="110" width="180" height="212" rx="12" fill="#F6F7EE" stroke="rgba(27,42,34,.28)"/>
+  <text x="790" y="136" font-size="11.5" font-weight="700" fill="#1B2A22">Not Function URLs</text>
+  <text x="790" y="154" font-size="9.5" fill="#1B2A22B3">An account guardrail</text>
+  <text x="790" y="168" font-size="9.5" fill="#1B2A22B3">blocks public Lambda</text>
+  <text x="790" y="182" font-size="9.5" fill="#1B2A22B3">Function URLs, so both</text>
+  <text x="790" y="196" font-size="9.5" fill="#1B2A22B3">Lambdas sit behind API</text>
+  <text x="790" y="210" font-size="9.5" fill="#1B2A22B3">Gateway instead.</text>
+  <text x="790" y="234" font-size="11.5" font-weight="700" fill="#1B2A22">No Cognito</text>
+  <text x="790" y="252" font-size="9.5" fill="#1B2A22B3">A localStorage UUID</text>
+  <text x="790" y="266" font-size="9.5" fill="#1B2A22B3">stands in for a user id -</text>
+  <text x="790" y="280" font-size="9.5" fill="#1B2A22B3">deliberate scope cut,</text>
+  <text x="790" y="294" font-size="9.5" fill="#1B2A22B3">matches the no-signup</text>
+  <text x="790" y="308" font-size="9.5" fill="#1B2A22B3">original design.</text>
+
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#1B2A22"/>
+    </marker>
+  </defs>
+</svg>
