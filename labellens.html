@@ -145,6 +145,19 @@
   .reg-panel .reg-list li:last-child { margin-bottom: 0; }
   .fssai-roadmap a { text-decoration: underline; text-underline-offset: 2px; }
 
+  .alt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .alt-card { display: flex; flex-direction: column; gap: 8px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-s); padding: 12px 14px; text-decoration: none; transition: border-color .15s ease; }
+  .alt-card:hover { border-color: var(--line-strong); }
+  .alt-grade { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: .82rem; flex: none; }
+  .alt-grade.good { background: var(--good-bg); color: var(--good); }
+  .alt-grade.caution { background: var(--caution-bg); color: var(--caution); }
+  .alt-grade.warn { background: var(--warn-bg); color: var(--warn); }
+  .alt-name { font-size: .88rem; font-weight: 600; color: var(--ink); line-height: 1.3; }
+  .alt-name small { display: block; font-weight: 400; color: var(--ink-45); margin-top: 2px; }
+  .alt-credit { font-size: .78rem; color: var(--ink-45); margin-top: 10px; }
+  .alt-credit a { text-decoration: underline; text-underline-offset: 2px; }
+  @media (max-width: 640px) { .alt-grid { grid-template-columns: 1fr; } }
+
   .risk-breakdown { margin-top: 14px; }
   .risk-breakdown .rb-track { display: flex; height: 9px; border-radius: 5px; overflow: hidden; background: var(--paper-2); }
   .risk-breakdown .rb-seg.warn { background: var(--warn); }
@@ -615,6 +628,10 @@
       '<div class="res-section"><h3><svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Ingredients</h3>' +
       '<div class="chip-row">' + ingredientsHtml + '</div>' + riskBreakdownHtml + '</div>' +
 
+      '<div class="res-section" id="altSection" hidden><h3><svg viewBox="0 0 24 24" fill="none"><path d="M17 8a5 5 0 0 0-10 0c0 2 1 3 2 4l-1 6h8l-1-6c1-1 2-2 2-4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>Healthier alternatives</h3>' +
+      '<div id="altBody"></div>' +
+      '<div class="alt-credit">Live lookup via <a href="https://world.openfoodfacts.org/" target="_blank" rel="noopener">Open Food Facts</a> — a free, open product database. Coverage for Indian regional products varies, so this only shows when a real match is found.</div></div>' +
+
       '<div class="res-section reg-panel"><h3><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6l-8-3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>Know the rules</h3>' +
       '<ul class="reg-list">' +
       '<li>India\u2019s Supreme Court ordered FSSAI to act on front-of-pack warnings (Feb 2026); FSSAI\u2019s own Aug 2026 proposal only warns when a product is high in <b>two or more</b> of fat/sugar/salt \u2014 LabelLens flags any single one, today.</li>' +
@@ -628,6 +645,47 @@
 
     document.getElementById('logBtn').addEventListener('click', function(){ logScan(a); });
     document.getElementById('scanAnotherBtn').addEventListener('click', function(){ goTo('scan'); });
+
+    loadAlternatives(a.category);
+  }
+
+  var GRADE_COLOR = { a: 'good', b: 'good', c: 'caution', d: 'warn', e: 'warn' };
+
+  // Real healthier-alternative products, not canned text - a live client-side lookup
+  // against Open Food Facts (free, open, CORS-enabled - no backend involved). Fails
+  // silently and stays hidden if there's no meaningful match, rather than showing noise.
+  async function loadAlternatives(category) {
+    var section = document.getElementById('altSection');
+    var body = document.getElementById('altBody');
+    if (!category) return;
+    try {
+      var controller = new AbortController();
+      var timeout = setTimeout(function(){ controller.abort(); }, 6000);
+      // Search by food CATEGORY, not the scanned product's own name - searching by name
+      // mostly returns other sizes/flavours of the same product, not real alternatives.
+      var url = 'https://world.openfoodfacts.org/cgi/search.pl?search_terms=' + encodeURIComponent(category) +
+        '&search_simple=1&json=1&page_size=8&sort_by=nutriscore_score&fields=product_name,brands,nutriscore_grade,code';
+      var res = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeout);
+      if (!res.ok) return;
+      var data = await res.json();
+      var candidates = (data.products || []).filter(function(p){
+        return p.product_name && p.nutriscore_grade && (p.nutriscore_grade === 'a' || p.nutriscore_grade === 'b');
+      }).slice(0, 3);
+      if (!candidates.length) return;
+
+      body.innerHTML = '<div class="alt-grid">' + candidates.map(function(p){
+        var grade = p.nutriscore_grade.toUpperCase();
+        var tier = GRADE_COLOR[p.nutriscore_grade] || 'good';
+        return '<a class="alt-card" href="https://world.openfoodfacts.org/product/' + encodeURIComponent(p.code || '') + '" target="_blank" rel="noopener">' +
+          '<span class="alt-grade ' + tier + '">' + grade + '</span>' +
+          '<span class="alt-name">' + escapeHtml(p.product_name) + (p.brands ? '<small>' + escapeHtml(p.brands.split(',')[0]) + '</small>' : '') + '</span>' +
+          '</a>';
+      }).join('') + '</div>';
+      section.hidden = false;
+    } catch (err) {
+      // Network hiccup or no match - the section just stays hidden, no error shown to the user.
+    }
   }
 
   async function logScan(a) {

@@ -33,13 +33,14 @@ const FLAGGED_INGREDIENTS = [
 
 const EXTRACTION_PROMPT = 'You are reading a photo of the back of a packaged food product sold in India. ' +
   'Reply with ONLY this JSON shape, no other text:\n' +
-  '{"productName": string|null, "fssaiNumber": string of digits only or null, "servingSize": string|null, ' +
+  '{"productName": string|null, "category": string|null, "fssaiNumber": string of digits only or null, "servingSize": string|null, ' +
   '"nutrients": {"sugar_g": number|null, "sodium_mg": number|null, "saturatedFat_g": number|null}, ' +
   '"ingredients": [string, ...]}\n' +
   'Use the values as printed per serving, reading each number and its unit exactly as printed — do not reinterpret the decimal point or unit. ' +
   'sodium_mg: if the label prints a line explicitly labelled "Sodium" (in mg or g), use that number directly, converting g to mg by *1000 only — never apply any other conversion to it. ' +
   'Only if the label has NO "Sodium" line at all, but DOES print a "Salt" line in grams, then convert: sodium_mg = salt_g * 400. Never apply both. ' +
   'If only per-100g values are printed with no serving size, use the per-100g values and set servingSize to "100 g". ' +
+  'category: a short generic English food-category term for this product, 1-3 words, suitable as a search term for similar products from OTHER brands (e.g. "biscuits", "potato chips", "instant noodles", "chocolate", "ladoo") — never the brand name, never null if the product type is visually identifiable at all. ' +
   'Split the ingredients list into individual items, preserving the order printed. If a field truly is not visible, use null — never guess a number.';
 
 const EXTRACTION_JSON_SCHEMA = {
@@ -47,6 +48,7 @@ const EXTRACTION_JSON_SCHEMA = {
   additionalProperties: false,
   properties: {
     productName: { type: ['string', 'null'] },
+    category: { type: ['string', 'null'] },
     fssaiNumber: { type: ['string', 'null'] },
     servingSize: { type: ['string', 'null'] },
     nutrients: {
@@ -61,7 +63,7 @@ const EXTRACTION_JSON_SCHEMA = {
     },
     ingredients: { type: 'array', items: { type: 'string' } }
   },
-  required: ['productName', 'fssaiNumber', 'servingSize', 'nutrients', 'ingredients']
+  required: ['productName', 'category', 'fssaiNumber', 'servingSize', 'nutrients', 'ingredients']
 };
 
 function corsHeaders() {
@@ -177,6 +179,7 @@ function buildAnalysis(raw) {
 
   return {
     productName: raw.productName || 'Scanned product',
+    category: raw.category || null,
     servingSize: raw.servingSize || null,
     nutrientRows: rows,
     fssai: checkFssaiFormat(raw.fssaiNumber),
