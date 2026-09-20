@@ -21,6 +21,13 @@ LabelLens flags per-serving nutrients against WHO daily-limit guidance (2000 kca
 - Saturated fat: WHO recommends under 10% of total energy intake → **22g/day** reference.
 - LabelLens's own flagging bands (not an official regulatory scale): under 15% of the daily limit per serving = good, 15-30% = caution, over 30% = high. These bands are LabelLens's design choice — say so if asked, don't present them as official.
 
+## AWS build notes (from actually deploying)
+- Bedrock's native Structured Outputs schema field (`outputConfig.textFormat.structure.jsonSchema.schema`) must be a JSON *string*, not an object, and every object in the schema needs `additionalProperties: false` explicitly — undocumented in the quick-start examples we found.
+- Claude models on Bedrock require a separate "Anthropic model use case" form submitted per-account, distinct from model access itself — every invoke returned `ResourceNotFoundException` until then. Switched to `amazon.nova-pro-v1:0`, verified working end-to-end via the same code's `tool_use` fallback path.
+- Lambda Function URLs (`AuthType: NONE`, public principal) returned `403 Forbidden`/`AccessDeniedException` on this account even with AWS's own documented resource policy — consistent with an account-level guardrail against public Function URLs. Moved both Lambdas behind API Gateway (HTTP API) instead.
+- `aws apigatewayv2 create-api --target <lambda-arn>` ("quick create") does not actually grant API Gateway permission to invoke the Lambda — every request 500'd with zero CloudWatch log groups created until `lambda add-permission` was run manually for `apigateway.amazonaws.com`.
+- Real-label test caught a genuine extraction bug: Nova Pro misread an explicit "Sodium: 210 mg" line as "2.10 g" and wrongly applied the salt(g)→sodium(mg) ×400 conversion meant only for labels that print salt instead of sodium, returning 840mg. Fixed by making the prompt state that conversion applies only when there's no explicit Sodium line at all; re-verified correct (210mg) afterward. Kept as a documented finding rather than smoothed over.
+
 ## Hackathon context
 - Event: First Commit, stop one of WeMakeDevs' "Bharat Builds Tour" with AWS. Online Sept 17-20, 2026; optional in-person day Sept 19 in Bangalore.
 - Tracks: Build It (open-source AWS stack — Strands, Cedar, SAM CLI/LocalStack, PartyRock, OpenSearch — no AWS account needed) and Ship It (deployed on AWS — Lambda, API Gateway, DynamoDB, S3, Bedrock, Amplify/App Runner, Cognito, EventBridge, Step Functions).

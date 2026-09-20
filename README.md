@@ -38,24 +38,35 @@ The **Results** screen shows the three deterministic layers stacked: the FSSAI s
 
 ## Verified results
 
-Real output from the deployed stack (not mocked) — the `analyze` Lambda's response shape, unedited, from an actual test call:
+Real output from the deployed stack (not mocked) — this exact label, posted to the live `analyze` endpoint:
+
+<img src="docs/sample-label.jpg" alt="Test label" width="280">
 
 ```json
 {
-  "productName": "Scanned product",
-  "servingSize": null,
+  "servingSize": "30 g",
   "nutrientRows": [
-    { "key": "sugar",  "label": "Sugar",          "unit": "g",  "limit": 50,   "pct": null, "tier": "unknown" },
-    { "key": "sodium", "label": "Sodium",         "unit": "mg", "limit": 2000, "pct": null, "tier": "unknown" },
-    { "key": "satfat", "label": "Saturated fat",  "unit": "g",  "limit": 22,   "pct": null, "tier": "unknown" }
+    { "label": "Sugar",         "unit": "g",  "value": 15.2, "pct": 30, "tier": "warn" },
+    { "label": "Sodium",        "unit": "mg", "value": 210,  "pct": 11, "tier": "good" },
+    { "label": "Saturated fat", "unit": "g",  "value": 6.8,  "pct": 31, "tier": "warn" }
   ],
-  "fssai": { "number": null, "ok": false, "reason": "No FSSAI number visible on the label." },
-  "ingredients": [],
-  "ts": 1789899578672
+  "fssai": { "number": "12318027000897", "ok": true, "reason": "Valid 14-digit FSSAI structure." },
+  "ingredients": [
+    { "name": "Refined Wheat Flour (Maida)",              "flag": "caution", "why": "allergen: gluten" },
+    { "name": "High Fructose Corn Syrup",                 "flag": "warn",    "why": "added sugar" },
+    { "name": "Milk Solids",                               "flag": "caution", "why": "allergen: milk" },
+    { "name": "Emulsifiers (E322 - Soy Lecithin)",         "flag": "caution", "why": "allergen: soy" },
+    { "name": "Preservative (Sodium Benzoate - E211)",     "flag": "caution", "why": "preservative" },
+    { "name": "Tartrazine (E102)",                         "flag": "caution", "why": "artificial colour" }
+  ]
 }
 ```
 
-The nulls above are correct behavior, not a bug — this was a connectivity test against a 1x1 blank pixel; the schema, the FSSAI-not-found reasoning string, and the tier logic all fired exactly as designed. The journal log/list round trip was verified against DynamoDB the same way:
+Every number matches the label exactly, the FSSAI prefix text got stripped down to the 14 digits correctly, and all six flaggable ingredients were caught with the right reason (unflagged ones — sugar, palm oil, cocoa solids, salt, raising agents, vanilla flavour — trimmed from this excerpt).
+
+**One real bug this test caught, and the fix**: the first pass misread the label's explicit "Sodium: 210 mg" line as "2.10 g" and wrongly applied the salt(g)→sodium(mg) `×400` conversion meant only for labels that print salt instead of sodium — returning 840mg. The extraction prompt (`lambda/analyze/index.mjs`) now states that conversion applies *only* when there's no explicit Sodium line at all; re-tested against the same label afterward and it reads 210mg correctly. Documented here rather than hidden because it's the kind of thing that matters more shown honestly than glossed over.
+
+The journal log/list round trip was verified against DynamoDB the same way:
 
 | Call | Result |
 |---|---|
@@ -88,19 +99,7 @@ LabelLens's differentiator: it's the only one of these enforcing WHO daily-limit
 
 ## Where AWS fits
 
-```
-Browser (labellens.html, static)
-        |
-        |  HTTPS
-        v
-AWS Amplify Hosting  ───────────────────────────────►  Amazon API Gateway (HTTP API)
-                                                              |         |
-                                                     labellens-analyze  labellens-journal
-                                                        (Lambda)          (Lambda)
-                                                              |               |
-                                                     Amazon Bedrock      Amazon DynamoDB
-                                                     (amazon.nova-pro)   (labellens-scans)
-```
+![Architecture diagram](docs/architecture.svg)
 
 - **Amazon Bedrock** — `amazon.nova-pro-v1:0`, called via the Converse API with an image content block. The extraction prompt is the *only* place the model is trusted; every judgement call above happens in plain deterministic code, not the model.
 - **AWS Lambda** — two functions. `labellens-analyze` does the Bedrock call and all three deterministic checks. `labellens-journal` reads/writes DynamoDB.
