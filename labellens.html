@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LabelLens</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1B2A22;
+    --ink-70: rgba(27,42,34,.7);
+    --ink-45: rgba(27,42,34,.45);
+    --paper: #EDF0DF;
+    --paper-2: #E3E7D2;
+    --card: #F6F7EE;
+    --good: #3F6C4C;
+    --good-bg: #E1EADD;
+    --caution: #A9760F;
+    --caution-bg: #F3E7CC;
+    --warn: #9E3324;
+    --warn-bg: #F1DAD3;
+    --line: rgba(27,42,34,.14);
+    --line-strong: rgba(27,42,34,.28);
+    --font-display: 'Fraunces', Georgia, serif;
+    --font-body: 'Archivo', -apple-system, sans-serif;
+    --radius-s: 10px;
+    --radius-m: 16px;
+    --shadow-1: 0 1px 2px rgba(27,42,34,.06), 0 6px 20px rgba(27,42,34,.06);
+    color-scheme: light;
+  }
+  :root { box-sizing: border-box; padding-top: env(safe-area-inset-top,0px); padding-bottom: env(safe-area-inset-bottom,0px); }
+  html { scroll-padding-top: env(safe-area-inset-top,0px); }
+  *, *::before, *::after { box-sizing: inherit; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
+  }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 { font-family: var(--font-display); font-weight: 600; color: var(--ink); margin: 0; letter-spacing: -0.01em; }
+  h1 { font-size: clamp(2.1rem, 5vw, 3.4rem); line-height: 1.05; font-weight: 500; }
+  h2 { font-size: clamp(1.5rem, 3vw, 2rem); line-height: 1.15; }
+  h3 { font-size: 1.15rem; line-height: 1.3; }
+  p { margin: 0; max-width: 62ch; }
+  a { color: inherit; }
+  button { font-family: inherit; cursor: pointer; }
+  img { max-width: 100%; display: block; }
+  :focus-visible { outline: 2.5px solid var(--ink); outline-offset: 3px; border-radius: 4px; }
+
+  .app { min-height: 100%; display: flex; flex-direction: column; }
+
+  /* ---------- Nav ---------- */
+  .nav {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px clamp(20px, 4vw, 48px);
+    background: color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; }
+  .brand-mark { width: 30px; height: 30px; flex: none; }
+  .nav-links { display: flex; align-items: center; gap: 4px; }
+  .nav-btn {
+    border: none; background: transparent; color: var(--ink-70);
+    font-size: .95rem; font-weight: 500; padding: 9px 16px; border-radius: 999px;
+    transition: background .15s ease, color .15s ease;
+  }
+  .nav-btn:hover { background: var(--paper-2); color: var(--ink); }
+  .nav-btn.is-active { background: var(--ink); color: var(--paper); }
+
+  /* ---------- Views ---------- */
+  .view { display: none; flex: 1; }
+  .view.is-active { display: block; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 clamp(20px, 4vw, 48px); }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    border: none; border-radius: 999px; padding: 15px 28px;
+    font-weight: 600; font-size: 1rem; transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .btn-primary { background: var(--ink); color: var(--paper); }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(27,42,34,.22); }
+  .btn-ghost { background: transparent; color: var(--ink); border: 1.5px solid var(--line-strong); }
+  .btn-ghost:hover { border-color: var(--ink); }
+  .btn:active { transform: translateY(0); }
+  .btn[disabled] { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  footer.site { padding: 28px clamp(20px,4vw,48px) 40px; color: var(--ink-45); font-size: .85rem; border-top: 1px solid var(--line); margin-top: 60px; }
+
+  /* ---------- Home ---------- */
+  .hero { padding: clamp(40px,7vw,84px) 0 clamp(30px,5vw,56px); display: grid; grid-template-columns: 1.05fr .95fr; gap: clamp(30px,5vw,64px); align-items: center; }
+  .hero p.lede { font-size: 1.2rem; color: var(--ink-70); margin-top: 20px; max-width: 46ch; }
+  .hero-cta { margin-top: 34px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .hero-cta .hint { font-size: .88rem; color: var(--ink-45); }
+
+  .hero-art { position: relative; aspect-ratio: 1/1; max-width: 420px; justify-self: center; }
+  .hero-art .packet {
+    position: absolute; inset: 6% 20% 6% 4%; background: var(--card);
+    border: 1.5px solid var(--line-strong); border-radius: 14px; padding: 18px 16px;
+    box-shadow: var(--shadow-1);
+  }
+  .hero-art .packet .ptitle { font-family: var(--font-body); font-weight: 800; font-size: .68rem; letter-spacing: .02em; color: var(--ink-45); margin-bottom: 10px; }
+  .hero-art .packet .pline { height: 6px; border-radius: 3px; background: var(--line-strong); margin-bottom: 7px; }
+  .hero-art .packet .pline:nth-child(3) { width: 88%; } .hero-art .packet .pline:nth-child(4) { width: 65%; } .hero-art .packet .pline:nth-child(5) { width: 78%; }
+  .hero-art .flags {
+    position: absolute; inset: 22% 2% 10% 42%; display: flex; flex-direction: column; gap: 9px;
+  }
+  .hero-art .flag { border-radius: 10px; padding: 9px 12px; font-size: .74rem; font-weight: 700; display: flex; align-items: center; gap: 7px; box-shadow: var(--shadow-1); }
+  .hero-art .flag.warn { background: var(--warn-bg); color: var(--warn); }
+  .hero-art .flag.caution { background: var(--caution-bg); color: var(--caution); }
+  .hero-art .flag.good { background: var(--good-bg); color: var(--good); }
+  .hero-art .flag svg { width: 14px; height: 14px; flex: none; }
+  .hero-art .arrow { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: 40px; height: 40px; }
+
+  .trust-strip { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 20px 0; margin: 10px 0 64px; color: var(--ink-70); font-size: .92rem; }
+  .trust-strip b { color: var(--ink); font-weight: 700; }
+
+  .how { padding-bottom: clamp(50px,8vw,90px); }
+  .how h2 { margin-bottom: 40px; max-width: 20ch; }
+  .how-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 28px; }
+  .how-step { border-top: 2.5px solid var(--ink); padding-top: 16px; }
+  .how-step .num { font-family: var(--font-display); font-size: 2.1rem; color: var(--ink-45); }
+  .how-step h3 { margin: 10px 0 8px; }
+  .how-step p { color: var(--ink-70); font-size: .95rem; }
+
+  @media (max-width: 860px) {
+    .hero { grid-template-columns: 1fr; }
+    .hero-art { max-width: 320px; }
+    .how-grid { grid-template-columns: 1fr; gap: 30px; }
+  }
+
+  /* ---------- Scan ---------- */
+  .scan-wrap { max-width: 560px; margin: 0 auto; padding: clamp(40px,7vw,72px) clamp(20px,4vw,48px) 90px; }
+  .scan-head { text-align: left; margin-bottom: 28px; }
+  .scan-head p { color: var(--ink-70); margin-top: 10px; }
+
+  .dropzone {
+    border: 1.5px dashed var(--line-strong); border-radius: var(--radius-m);
+    background: var(--card); padding: 46px 24px; text-align: center;
+    transition: border-color .15s ease, background .15s ease;
+  }
+  .dropzone.is-drag { border-color: var(--ink); background: var(--paper-2); }
+  .dropzone svg { width: 40px; height: 40px; color: var(--ink-45); margin-bottom: 14px; }
+  .dropzone h3 { margin-bottom: 6px; }
+  .dropzone p { color: var(--ink-45); font-size: .9rem; margin: 0 auto 20px; }
+  .dropzone input[type=file] { display: none; }
+  .dz-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+  .preview-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-m); padding: 18px; box-shadow: var(--shadow-1); }
+  .preview-card img { width: 100%; border-radius: 10px; max-height: 340px; object-fit: cover; }
+  .preview-actions { display: flex; gap: 12px; margin-top: 16px; align-items: center; flex-wrap: wrap; }
+  .link-btn { background: none; border: none; color: var(--ink-70); font-weight: 600; font-size: .92rem; text-decoration: underline; text-underline-offset: 3px; padding: 8px 4px; }
+
+  .analyzing { display: flex; align-items: center; gap: 14px; padding: 18px 4px; color: var(--ink-70); font-weight: 500; }
+  .spinner { width: 22px; height: 22px; border-radius: 50%; border: 2.5px solid var(--line-strong); border-top-color: var(--ink); animation: spin .8s linear infinite; flex: none; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error-note { background: var(--warn-bg); color: var(--warn); border-radius: var(--radius-s); padding: 14px 16px; font-size: .92rem; margin-top: 16px; }
+
+  /* ---------- Results ---------- */
+  .results-wrap { max-width: 720px; margin: 0 auto; padding: clamp(36px,6vw,64px) clamp(20px,4vw,48px) 90px; }
+  .res-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; margin-bottom: 30px; flex-wrap: wrap; }
+  .res-head h2 { max-width: 26ch; }
+  .res-head .sub { color: var(--ink-45); font-size: .9rem; margin-top: 6px; }
+
+  .res-section { margin-bottom: 34px; }
+  .res-section h3 { margin-bottom: 14px; display: flex; align-items: center; gap: 9px; }
+  .res-section h3 svg { width: 19px; height: 19px; color: var(--ink-45); }
+
+  .fssai-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-m); padding: 18px 20px; display: flex; align-items: center; gap: 16px; }
+  .fssai-badge { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex: none; }
+  .fssai-badge.ok { background: var(--good-bg); color: var(--good); }
+  .fssai-badge.bad { background: var(--warn-bg); color: var(--warn); }
+  .fssai-badge svg { width: 20px; height: 20px; }
+  .fssai-num { font-family: var(--font-body); font-weight: 700; letter-spacing: .03em; font-size: 1.05rem; }
+  .fssai-status { font-size: .88rem; color: var(--ink-70); margin-top: 2px; }
+  .fssai-roadmap { font-size: .8rem; color: var(--ink-45); margin-top: 10px; }
+
+  .nutrient-row { display: grid; grid-template-columns: 130px 1fr 96px; align-items: center; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .nutrient-row:last-child { border-bottom: none; }
+  .nutrient-name { font-weight: 600; }
+  .nutrient-name small { display: block; font-weight: 400; color: var(--ink-45); font-size: .78rem; }
+  .nutrient-bar-track { height: 9px; border-radius: 5px; background: var(--paper-2); overflow: hidden; }
+  .nutrient-bar-fill { height: 100%; border-radius: 5px; transition: width .5s cubic-bezier(.2,.7,.3,1); }
+  .nutrient-bar-fill.good { background: var(--good); } .nutrient-bar-fill.caution { background: var(--caution); } .nutrient-bar-fill.warn { background: var(--warn); }
+  .nutrient-pct { text-align: right; font-weight: 700; font-size: .92rem; }
+  .nutrient-pct.good { color: var(--good); } .nutrient-pct.caution { color: var(--caution); } .nutrient-pct.warn { color: var(--warn); }
+  .nutrient-note { font-size: .8rem; color: var(--ink-45); margin-top: 10px; }
+
+  .chip-row { display: flex; flex-wrap: wrap; gap: 9px; }
+  .chip { padding: 7px 13px; border-radius: 999px; font-size: .87rem; font-weight: 500; background: var(--card); border: 1px solid var(--line); }
+  .chip.flag-warn { background: var(--warn-bg); color: var(--warn); border-color: transparent; font-weight: 700; }
+  .chip.flag-caution { background: var(--caution-bg); color: var(--caution); border-color: transparent; font-weight: 700; }
+  .chip .why { font-weight: 400; opacity: .8; }
+
+  .res-actions { display: flex; gap: 12px; margin-top: 40px; flex-wrap: wrap; }
+  .logged-note { display: flex; align-items: center; gap: 10px; background: var(--good-bg); color: var(--good); padding: 13px 18px; border-radius: var(--radius-s); font-weight: 600; margin-top: 40px; }
+  .logged-note svg { width: 18px; height: 18px; flex: none; }
+
+  /* ---------- Journal ---------- */
+  .journal-wrap { max-width: 780px; margin: 0 auto; padding: clamp(36px,6vw,64px) clamp(20px,4vw,48px) 90px; }
+  .journal-wrap h2 { margin-bottom: 6px; }
+  .journal-wrap > p.sub { color: var(--ink-70); margin-bottom: 36px; }
+
+  .today-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 44px; }
+  .today-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-m); padding: 18px; }
+  .today-card .label { font-size: .82rem; color: var(--ink-45); font-weight: 600; margin-bottom: 8px; }
+  .today-card .amount { font-family: var(--font-display); font-size: 1.5rem; }
+  .today-card .amount span { font-size: .95rem; color: var(--ink-45); font-family: var(--font-body); }
+  .today-card .nutrient-bar-track { margin-top: 12px; }
+
+  .chart-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-m); padding: 22px 20px; margin-bottom: 44px; }
+  .chart-card h3 { margin-bottom: 16px; }
+  .chart-card canvas { max-height: 220px; }
+
+  .hist-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--line); gap: 14px; }
+  .hist-item:last-child { border-bottom: none; }
+  .hist-main .name { font-weight: 600; }
+  .hist-main .date { font-size: .8rem; color: var(--ink-45); margin-top: 2px; }
+  .hist-flags { display: flex; gap: 6px; flex: none; }
+  .hist-dot { width: 9px; height: 9px; border-radius: 50%; }
+  .hist-dot.good { background: var(--good); } .hist-dot.caution { background: var(--caution); } .hist-dot.warn { background: var(--warn); }
+  .journal-empty { color: var(--ink-45); padding: 30px 0; }
+
+  @media (max-width: 640px) { .today-grid { grid-template-columns: 1fr; } .nutrient-row { grid-template-columns: 90px 1fr 70px; gap: 10px; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="nav">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="4" y="3" width="24" height="26" rx="3" stroke="#1B2A22" stroke-width="2"/>
+        <path d="M9 11h14M9 16h14M9 21h9" stroke="#1B2A22" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="24" cy="22" r="6.5" fill="#EDF0DF" stroke="#1B2A22" stroke-width="2"/>
+        <path d="M21.5 22l1.8 1.8L26.5 20" stroke="#1B2A22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>LabelLens</span>
+    </div>
+    <div class="nav-links">
+      <button class="nav-btn" data-nav="home">Home</button>
+      <button class="nav-btn" data-nav="scan">Scan</button>
+      <button class="nav-btn" data-nav="journal">Journal</button>
+    </div>
+  </nav>
+
+  <main id="views">
+
+    <section class="view is-active" data-view="home">
+      <div class="wrap">
+        <div class="hero">
+          <div>
+            <h1>Know what's really inside the packet.</h1>
+            <p class="lede">Scan the back of any packaged food. LabelLens reads the ingredients and nutrition panel, flags what's worth knowing, and checks the FSSAI number — in seconds, not a squint.</p>
+            <div class="hero-cta">
+              <button class="btn btn-primary" data-nav="scan">Scan a label</button>
+              <span class="hint">No sign-up. Your photo isn't stored.</span>
+            </div>
+          </div>
+          <div class="hero-art" aria-hidden="true">
+            <div class="packet">
+              <div class="ptitle">INGREDIENTS</div>
+              <div class="pline" style="width:92%"></div>
+              <div class="pline"></div>
+              <div class="pline"></div>
+              <div class="pline"></div>
+              <div class="pline" style="width:50%"></div>
+            </div>
+            <svg class="arrow" viewBox="0 0 40 40" fill="none"><path d="M6 20h26m0 0-9-9m9 9-9 9" stroke="#1B2A22" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div class="flags">
+              <div class="flag warn"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 2 20h20L12 3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 10v4M12 17h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>High sugar</div>
+              <div class="flag caution"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 8v5H8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Moderate salt</div>
+              <div class="flag good"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>FSSAI format OK</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="trust-strip">
+          Nutrient flags follow <b>WHO daily-limit guidance</b> for free sugar, sodium and saturated fat — the same nutrients FSSAI's own <b>August 2026</b> Supreme Court filing proposes front-of-pack warnings for. LabelLens brings that to any product today, and flags single-nutrient extremes the first phase of that rule won't.
+        </div>
+
+        <div class="how">
+          <h2>From packet to plain answer</h2>
+          <div class="how-grid">
+            <div class="how-step"><div class="num">01</div><h3>Photograph the back</h3><p>The ingredients list and nutrition panel — one photo, held steady for a second.</p></div>
+            <div class="how-step"><div class="num">02</div><h3>Get a real read</h3><p>Ingredients sorted, nutrients checked against daily limits, the FSSAI number checked for a valid format.</p></div>
+            <div class="how-step"><div class="num">03</div><h3>Log it, see the pattern</h3><p>Every scan adds to your day — sugar, salt and saturated fat tracked against what you'd actually want to stay under.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" data-view="scan">
+      <div class="scan-wrap">
+        <div class="scan-head">
+          <h2>Scan a label</h2>
+          <p>Fill the frame with the ingredients and nutrition panel. Good light beats a good camera.</p>
+        </div>
+
+        <div id="scanBody">
+          <div class="dropzone" id="dropzone">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 16V4m0 0-4 4m4-4 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <h3>Upload or take a photo</h3>
+            <p>JPG or PNG, back of the packet</p>
+            <div class="dz-actions">
+              <button class="btn btn-primary" id="chooseBtn">Choose photo</button>
+            </div>
+            <input type="file" id="fileInput" accept="image/*" capture="environment">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" data-view="results">
+      <div class="results-wrap" id="resultsBody">
+        <p style="color:var(--ink-45)">Scan a label first — nothing to show yet.</p>
+      </div>
+    </section>
+
+    <section class="view" data-view="journal">
+      <div class="journal-wrap">
+        <h2>Your journal</h2>
+        <p class="sub">Every scan you log, tracked against daily limits — not calories alone.</p>
+
+        <div class="today-grid" id="todayGrid"></div>
+
+        <div class="chart-card">
+          <h3>Last 7 days</h3>
+          <canvas id="trendChart" height="90"></canvas>
+        </div>
+
+        <div>
+          <h3 style="margin-bottom:10px">History</h3>
+          <div id="historyList"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site">
+    <div class="wrap">Built for First Commit — flags nutrients against WHO daily-limit guidance, not medical advice.</div>
+  </footer>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.9.3/confetti.browser.min.js"></script>
+<script>
+(function(){
+  'use strict';
+
+  // ---------- Reference thresholds (WHO daily-limit guidance, 2000 kcal reference) ----------
+  // Ingredient flagging and nutrient tiering now happen server-side (Lambda) so the AI
+  // extraction step and the deterministic judgement stay separate; DAILY_LIMITS stays here
+  // only because the Journal view renders "today" totals against it directly.
+  var DAILY_LIMITS = { sugar_g: 50, sodium_mg: 2000, satfat_g: 22 };
+
+  // ---------- Backend endpoints (Lambda Function URLs) ----------
+  var API = {
+    analyzeUrl: window.LABELLENS_ANALYZE_URL || 'https://mfvl8cbrqg.execute-api.us-east-1.amazonaws.com/',
+    journalUrl: window.LABELLENS_JOURNAL_URL || 'https://a8f4hrl4aj.execute-api.us-east-1.amazonaws.com/'
+  };
+
+  function getUserId() {
+    try {
+      var id = localStorage.getItem('labellens_user_id');
+      if (!id) { id = (crypto.randomUUID ? crypto.randomUUID() : ('u_' + Date.now() + '_' + Math.random().toString(36).slice(2))); localStorage.setItem('labellens_user_id', id); }
+      return id;
+    } catch (e) { return 'anon'; }
+  }
+  var USER_ID = getUserId();
+
+  // ---------- State ----------
+  var currentImageDataUrl = null;
+  var trendChartInstance = null;
+
+  // Downscale before upload: keeps requests well under the Lambda payload cap and
+  // Bedrock's own per-image size limit, and a label photo doesn't need full camera resolution.
+  function resizeImage(file, maxDim, quality) {
+    return new Promise(function (resolve, reject) {
+      var img = new Image();
+      var reader = new FileReader();
+      reader.onerror = reject;
+      reader.onload = function () {
+        img.onerror = reject;
+        img.onload = function () {
+          var scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+          var w = Math.round(img.width * scale), h = Math.round(img.height * scale);
+          var canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+  // ---------- Navigation ----------
+  function goTo(view) {
+    document.querySelectorAll('.view').forEach(function(v){ v.classList.toggle('is-active', v.dataset.view === view); });
+    document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.toggle('is-active', b.dataset.nav === view); });
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    if (view === 'journal') renderJournal();
+  }
+  document.querySelectorAll('.nav-btn[data-nav], .hero-cta [data-nav]').forEach(function(el){
+    el.addEventListener('click', function(){ goTo(el.dataset.nav); });
+  });
+
+  // ---------- Scan flow ----------
+  var scanBody = document.getElementById('scanBody');
+
+  function dropzoneHTML() {
+    return '<div class="dropzone" id="dropzone">' +
+      '<svg viewBox="0 0 24 24" fill="none"><path d="M12 16V4m0 0-4 4m4-4 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' +
+      '<h3>Upload or take a photo</h3><p>JPG or PNG, back of the packet</p>' +
+      '<div class="dz-actions"><button class="btn btn-primary" type="button" data-action="choose">Choose photo</button></div>' +
+      '<input type="file" id="fileInput" accept="image/*" capture="environment" style="display:none">' +
+      '</div>';
+  }
+
+  function resetScan() { currentImageDataUrl = null; scanBody.innerHTML = dropzoneHTML(); }
+
+  function handleFile(file) {
+    resizeImage(file, 1600, 0.7).then(function (dataUrl) {
+      currentImageDataUrl = dataUrl;
+      renderPreview(currentImageDataUrl);
+    });
+  }
+
+  function renderPreview(dataUrl) {
+    scanBody.innerHTML =
+      '<div class="preview-card"><img src="' + dataUrl + '" alt="Selected label photo">' +
+      '<div class="preview-actions">' +
+      '<button class="btn btn-primary" type="button" data-action="analyze">Analyze label</button>' +
+      '<button class="link-btn" type="button" data-action="retake">Choose a different photo</button>' +
+      '</div></div>';
+  }
+
+  function renderAnalyzing() { scanBody.innerHTML = '<div class="analyzing"><div class="spinner"></div> Reading the label\u2026</div>'; }
+
+  function renderScanError(message) {
+    scanBody.innerHTML =
+      '<div class="preview-card"><img src="' + currentImageDataUrl + '" alt="Selected label photo">' +
+      '<div class="error-note">' + escapeHtml(message) + '</div>' +
+      '<div class="preview-actions" style="margin-top:14px">' +
+      '<button class="btn btn-primary" type="button" data-action="analyze">Try again</button>' +
+      '<button class="link-btn" type="button" data-action="retake">Choose a different photo</button>' +
+      '</div></div>';
+  }
+
+  scanBody.addEventListener('click', function(e){
+    var btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    var action = btn.dataset.action;
+    if (action === 'choose') { document.getElementById('fileInput').click(); }
+    else if (action === 'retake') { resetScan(); document.getElementById('fileInput').click(); }
+    else if (action === 'analyze') { runAnalysis(); }
+  });
+  scanBody.addEventListener('change', function(e){ if (e.target.id === 'fileInput' && e.target.files[0]) handleFile(e.target.files[0]); });
+  ['dragover','drop'].forEach(function(evt){ scanBody.addEventListener(evt, function(e){ e.preventDefault(); }); });
+  scanBody.addEventListener('dragover', function(){ var dz = document.getElementById('dropzone'); if (dz) dz.classList.add('is-drag'); });
+  scanBody.addEventListener('dragleave', function(){ var dz = document.getElementById('dropzone'); if (dz) dz.classList.remove('is-drag'); });
+  scanBody.addEventListener('drop', function(e){ var f = e.dataTransfer.files[0]; if (f) handleFile(f); });
+
+  // Extraction prompt, the Bedrock call, and the deterministic FSSAI/nutrient/ingredient
+  // judgement logic all live server-side now (lambda/analyze) \u2014 this just calls it.
+  async function runAnalysis() {
+    if (!currentImageDataUrl) return;
+    renderAnalyzing();
+    try {
+      var res = await fetch(API.analyzeUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageBase64: currentImageDataUrl })
+      });
+      var analysis = await res.json();
+      if (!res.ok) throw new Error(analysis.error || ('Request failed (' + res.status + ')'));
+      renderResults(analysis);
+      goTo('results');
+      resetScan();
+    } catch (err) {
+      renderScanError('Couldn\'t read that clearly \u2014 ' + ((err && err.message) || 'try again') + '. A straighter angle with the ingredients panel filling the frame usually fixes it.');
+    }
+  }
+
+  // ---------- Results rendering ----------
+  function renderResults(a) {
+    var resultsBody = document.getElementById('resultsBody');
+    var nutrientRowsHtml = a.nutrientRows.map(function(r){
+      if (r.pct === null) {
+        return '<div class="nutrient-row"><div class="nutrient-name">' + r.label + '<small>not on label</small></div>' +
+          '<div class="nutrient-bar-track"><div class="nutrient-bar-fill" style="width:0%"></div></div>' +
+          '<div class="nutrient-pct" style="color:var(--ink-45)">\u2014</div></div>';
+      }
+      return '<div class="nutrient-row"><div class="nutrient-name">' + r.label + '<small>' + r.value + r.unit + ' per serving</small></div>' +
+        '<div class="nutrient-bar-track"><div class="nutrient-bar-fill ' + r.tier + '" style="width:' + Math.min(r.pct,100) + '%"></div></div>' +
+        '<div class="nutrient-pct ' + r.tier + '">' + r.pct + '%</div></div>';
+    }).join('');
+
+    var ingredientsHtml = a.ingredients.length ? a.ingredients.map(function(i){
+      var cls = i.flag ? ' flag-' + i.flag : '';
+      var why = i.why ? ' <span class="why">\u00b7 ' + escapeHtml(i.why) + '</span>' : '';
+      return '<span class="chip' + cls + '">' + escapeHtml(i.name) + why + '</span>';
+    }).join('') : '<p style="color:var(--ink-45)">No ingredient list detected.</p>';
+
+    var fssaiOk = a.fssai.ok;
+    var fssaiIcon = fssaiOk
+      ? '<svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="none"><path d="M12 3 2 20h20L12 3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 10v4M12 17h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+
+    resultsBody.innerHTML =
+      '<div class="res-head"><div><h2>' + escapeHtml(a.productName) + '</h2>' +
+      '<div class="sub">' + (a.servingSize ? 'Per serving: ' + escapeHtml(a.servingSize) : 'Per label as printed') + '</div></div></div>' +
+
+      '<div class="res-section"><h3><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="2"/></svg>FSSAI number</h3>' +
+      '<div class="fssai-card"><div class="fssai-badge ' + (fssaiOk ? 'ok' : 'bad') + '">' + fssaiIcon + '</div>' +
+      '<div><div class="fssai-num">' + (a.fssai.number || 'Not found') + '</div><div class="fssai-status">' + escapeHtml(a.fssai.reason) + '</div></div></div>' +
+      '<div class="fssai-roadmap">Format checked locally on your device. Live FoSCoS registry lookup \u2014 to confirm the license is active, not just correctly formatted \u2014 is on the roadmap.</div></div>' +
+
+      '<div class="res-section"><h3><svg viewBox="0 0 24 24" fill="none"><path d="M12 21c4-4 7-7.5 7-11a7 7 0 1 0-14 0c0 3.5 3 7 7 11Z" stroke="currentColor" stroke-width="2"/></svg>Nutrients vs. daily limit</h3>' +
+      nutrientRowsHtml +
+      '<div class="nutrient-note">Bands: under 15% of a WHO daily limit reads good, 15\u201330% caution, above 30% high \u2014 per serving as printed.</div></div>' +
+
+      '<div class="res-section"><h3><svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Ingredients</h3>' +
+      '<div class="chip-row">' + ingredientsHtml + '</div></div>' +
+
+      '<div class="res-actions"><button class="btn btn-primary" type="button" id="logBtn">Log this scan</button>' +
+      '<button class="btn btn-ghost" type="button" data-nav="scan" id="scanAnotherBtn">Scan another</button></div>' +
+      '<div id="logConfirm"></div>';
+
+    document.getElementById('logBtn').addEventListener('click', function(){ logScan(a); });
+    document.getElementById('scanAnotherBtn').addEventListener('click', function(){ goTo('scan'); });
+  }
+
+  async function logScan(a) {
+    var logBtn = document.getElementById('logBtn');
+    logBtn.disabled = true; logBtn.textContent = 'Logging\u2026';
+    try {
+      var res = await fetch(API.journalUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'log',
+          userId: USER_ID,
+          scan: {
+            productName: a.productName,
+            ts: a.ts,
+            nutrients: {
+              sugar: { value: a.nutrientRows[0].value, pct: a.nutrientRows[0].pct, tier: a.nutrientRows[0].tier },
+              sodium: { value: a.nutrientRows[1].value, pct: a.nutrientRows[1].pct, tier: a.nutrientRows[1].tier },
+              satfat: { value: a.nutrientRows[2].value, pct: a.nutrientRows[2].pct, tier: a.nutrientRows[2].tier }
+            },
+            fssaiOk: a.fssai.ok
+          }
+        })
+      });
+      if (!res.ok) throw new Error('Journal request failed (' + res.status + ')');
+      var allGood = a.nutrientRows.every(function(r){ return r.tier === 'good' || r.tier === 'unknown'; });
+      document.getElementById('logConfirm').innerHTML = '<div class="logged-note"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Logged to your journal.</div>';
+      if (allGood && window.confetti) { window.confetti({ particleCount: 70, spread: 65, origin: { y: 0.7 }, colors: ['#3F6C4C','#EDF0DF','#1B2A22'] }); }
+      logBtn.textContent = 'Logged \u2713';
+    } catch (err) {
+      document.getElementById('logConfirm').innerHTML = '<div class="error-note">Couldn\'t save to your journal right now \u2014 you can still see this result above.</div>';
+      logBtn.disabled = false; logBtn.textContent = 'Log this scan';
+    }
+  }
+
+  // ---------- Journal ----------
+  async function renderJournal() {
+    var todayGrid = document.getElementById('todayGrid');
+    var historyList = document.getElementById('historyList');
+    todayGrid.innerHTML = '<p style="color:var(--ink-45)">Loading\u2026</p>';
+    historyList.innerHTML = '';
+
+    var scans = [];
+    try {
+      var res = await fetch(API.journalUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'list', userId: USER_ID, limit: 50 })
+      });
+      var data = await res.json();
+      if (res.ok) scans = data.scans || [];
+    } catch (err) { scans = []; }
+
+    if (!scans.length) {
+      todayGrid.innerHTML = '';
+      historyList.innerHTML = '<div class="journal-empty">Nothing logged yet \u2014 scan a label and log it to start your journal.</div>';
+      renderTrendChart([]);
+      return;
+    }
+
+    var startOfDay = new Date(); startOfDay.setHours(0,0,0,0);
+    var todayScans = scans.filter(function(s){ return s.ts >= startOfDay.getTime(); });
+    var totals = { sugar: 0, sodium: 0, satfat: 0 };
+    todayScans.forEach(function(s){ ['sugar','sodium','satfat'].forEach(function(k){ totals[k] += (s.nutrients && s.nutrients[k] && s.nutrients[k].value) || 0; }); });
+
+    var cards = [
+      { key: 'sugar', label: 'Sugar today', unit: 'g', limit: DAILY_LIMITS.sugar_g },
+      { key: 'sodium', label: 'Sodium today', unit: 'mg', limit: DAILY_LIMITS.sodium_mg },
+      { key: 'satfat', label: 'Sat. fat today', unit: 'g', limit: DAILY_LIMITS.satfat_g }
+    ];
+    todayGrid.innerHTML = cards.map(function(c){
+      var val = Math.round(totals[c.key]);
+      var pct = Math.min(Math.round((val / c.limit) * 100), 100);
+      var tier = pct >= 100 ? 'warn' : (pct >= 60 ? 'caution' : 'good');
+      return '<div class="today-card"><div class="label">' + c.label + '</div>' +
+        '<div class="amount">' + val + '<span>/' + c.limit + c.unit + '</span></div>' +
+        '<div class="nutrient-bar-track"><div class="nutrient-bar-fill ' + tier + '" style="width:' + pct + '%"></div></div></div>';
+    }).join('');
+
+    historyList.innerHTML = scans.slice(0,20).map(function(s){
+      var d = new Date(s.ts);
+      var dots = ['sugar','sodium','satfat'].map(function(k){ return '<span class="hist-dot ' + ((s.nutrients && s.nutrients[k] && s.nutrients[k].tier) || 'good') + '"></span>'; }).join('');
+      return '<div class="hist-item"><div class="hist-main"><div class="name">' + escapeHtml(s.productName) + '</div>' +
+        '<div class="date">' + d.toLocaleDateString(undefined,{month:'short',day:'numeric'}) + ' \u00b7 ' + d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'}) + '</div></div>' +
+        '<div class="hist-flags">' + dots + '</div></div>';
+    }).join('');
+
+    renderTrendChart(scans);
+  }
+
+  function renderTrendChart(scans) {
+    var ctx = document.getElementById('trendChart');
+    if (!ctx || !window.Chart) return;
+    var days = [0,1,2,3,4,5,6].map(function(i){ var d = new Date(); d.setDate(d.getDate() - (6-i)); d.setHours(0,0,0,0); return d; });
+    var perDay = days.map(function(day){
+      var next = day.getTime() + 86400000;
+      var dayScans = scans.filter(function(s){ return s.ts >= day.getTime() && s.ts < next; });
+      return dayScans.reduce(function(sum,s){ return sum + ((s.nutrients && s.nutrients.sugar && s.nutrients.sugar.value) || 0); }, 0);
+    });
+    if (trendChartInstance) trendChartInstance.destroy();
+    trendChartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: { labels: days.map(function(d){ return d.toLocaleDateString(undefined,{weekday:'short'}); }), datasets: [{ label: 'Sugar (g)', data: perDay, backgroundColor: '#3F6C4C', borderRadius: 6, maxBarThickness: 34 }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(27,42,34,.08)' } }, x: { grid: { display: false } } } }
+    });
+  }
+
+  // ---------- Init ----------
+  resetScan();
+
+  if (window.gsap) {
+    gsap.set('.hero-art .flag', { opacity: 0, y: 10 });
+    gsap.set('.hero-art .arrow', { opacity: 0, scale: .8 });
+    var tl = gsap.timeline({ delay: .25 });
+    tl.from('.hero h1', { opacity: 0, y: 16, duration: .6, ease: 'power2.out' })
+      .from('.hero p.lede', { opacity: 0, y: 12, duration: .5, ease: 'power2.out' }, '-=.35')
+      .from('.hero-cta', { opacity: 0, y: 10, duration: .5, ease: 'power2.out' }, '-=.3')
+      .to('.hero-art .arrow', { opacity: 1, scale: 1, duration: .4, ease: 'back.out(2)' }, '-=.2')
+      .to('.hero-art .flag', { opacity: 1, y: 0, duration: .45, stagger: .12, ease: 'power2.out' }, '-=.1');
+  }
+})();
+</script>
+</body>
+</html>
