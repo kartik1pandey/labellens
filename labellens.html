@@ -137,6 +137,13 @@
   /* ---------- Small inline icons (nutrients, ingredient breakdown, empty states) ---------- */
   .nutrient-name { display: flex; align-items: center; gap: 8px; }
   .nutrient-name .n-icon { width: 17px; height: 17px; color: var(--ink-45); flex: none; }
+  .nutrient-name .jar-icon { width: 19px; height: 22px; }
+  .swap-tip { font-size: .82rem; color: var(--ink-70); background: var(--card); border-radius: 8px; padding: 8px 12px; margin: -2px 0 10px; }
+
+  .reg-panel ul.reg-list { margin: 4px 0 0; padding-left: 20px; }
+  .reg-panel .reg-list li { color: var(--ink-70); font-size: .92rem; margin-bottom: 8px; }
+  .reg-panel .reg-list li:last-child { margin-bottom: 0; }
+  .fssai-roadmap a { text-decoration: underline; text-underline-offset: 2px; }
 
   .risk-breakdown { margin-top: 14px; }
   .risk-breakdown .rb-track { display: flex; height: 9px; border-radius: 5px; overflow: hidden; background: var(--paper-2); }
@@ -522,24 +529,48 @@
   }
 
   // ---------- Results rendering ----------
-  var NUTRIENT_ICONS = {
-    sugar: '<svg class="n-icon" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 4v10l-7 4-7-4V7l7-4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
-    sodium: '<svg class="n-icon" viewBox="0 0 24 24" fill="none"><path d="M9 3h6l1 4H8l1-4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 7h8l1 13a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1L8 7Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="10.5" cy="12" r=".6" fill="currentColor"/><circle cx="13.5" cy="12" r=".6" fill="currentColor"/><circle cx="12" cy="15" r=".6" fill="currentColor"/></svg>',
-    satfat: '<svg class="n-icon" viewBox="0 0 24 24" fill="none"><path d="M12 3c3 4 6 7.5 6 11a6 6 0 1 1-12 0c0-3.5 3-7 6-11Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>'
+  // A small mason-jar icon whose fill level = % of the daily limit used, colored by tier.
+  // The visual metaphor is the point: "how full is today's jar of sugar/salt/fat" reads
+  // faster than a percentage alone.
+  function jarIcon(key, pct, tier) {
+    var p = (pct == null) ? 0 : Math.max(0, Math.min(100, pct));
+    var bodyTop = 9, bodyBottom = 21, bodyH = bodyBottom - bodyTop;
+    var fillH = (p / 100) * bodyH;
+    var fillY = bodyBottom - fillH;
+    var color = tier === 'warn' ? 'var(--warn)' : tier === 'caution' ? 'var(--caution)' : tier === 'good' ? 'var(--good)' : 'var(--line-strong)';
+    var clipId = 'jarclip-' + key;
+    return '<svg class="n-icon jar-icon" viewBox="0 0 24 24" fill="none">' +
+      '<defs><clipPath id="' + clipId + '"><rect x="5" y="9" width="14" height="12" rx="2"/></clipPath></defs>' +
+      '<rect x="5" y="' + fillY.toFixed(1) + '" width="14" height="' + fillH.toFixed(1) + '" fill="' + color + '" clip-path="url(#' + clipId + ')"/>' +
+      '<rect x="5" y="9" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.6"/>' +
+      '<path d="M9 9V5.5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1V9" stroke="currentColor" stroke-width="1.6"/>' +
+      '<rect x="8.5" y="3" width="7" height="2.5" rx="0.8" stroke="currentColor" stroke-width="1.4"/>' +
+    '</svg>';
+  }
+
+  // Deterministic, canned swap suggestions (not model-generated) - reliable and instant,
+  // shown only when a nutrient reads caution/warn.
+  var SWAP_TIPS = {
+    sugar: { warn: 'High in sugar for one serving \u2014 a no-added-sugar or jaggery-based version, or a smaller portion, is the lighter swap.', caution: 'Moderate sugar \u2014 fine occasionally; worth checking if a lower-sugar variant exists.' },
+    sodium: { warn: 'High in sodium \u2014 balance it with fresh fruit or vegetables today, or look for a "low salt" labelled variant.', caution: 'Moderate sodium \u2014 keep an eye on the rest of today\u2019s meals.' },
+    satfat: { warn: 'High in saturated fat \u2014 a baked (not fried) version, or one using unsaturated oils, is usually lighter.', caution: 'Moderate saturated fat \u2014 watch other fried or fatty foods today.' }
   };
 
   function renderResults(a) {
     var resultsBody = document.getElementById('resultsBody');
     var nutrientRowsHtml = a.nutrientRows.map(function(r){
-      var icon = NUTRIENT_ICONS[r.key] || '';
+      var icon = jarIcon(r.key, r.pct, r.tier);
       if (r.pct === null) {
         return '<div class="nutrient-row"><div class="nutrient-name">' + icon + '<span class="n-text">' + r.label + '<small>not on label</small></span></div>' +
           '<div class="nutrient-bar-track"><div class="nutrient-bar-fill" style="width:0%"></div></div>' +
           '<div class="nutrient-pct" style="color:var(--ink-45)">\u2014</div></div>';
       }
-      return '<div class="nutrient-row"><div class="nutrient-name">' + icon + '<span class="n-text">' + r.label + '<small>' + r.value + r.unit + ' per serving</small></span></div>' +
+      var tip = SWAP_TIPS[r.key] && SWAP_TIPS[r.key][r.tier];
+      var tipHtml = tip ? '<div class="swap-tip">' + escapeHtml(tip) + '</div>' : '';
+      var remaining = Math.max(0, r.limit - r.value);
+      return '<div class="nutrient-row"><div class="nutrient-name">' + icon + '<span class="n-text">' + r.label + '<small>' + r.value + r.unit + ' per serving \u00b7 ' + Math.round(remaining) + r.unit + ' left of today\u2019s ' + r.limit + r.unit + ' limit</small></span></div>' +
         '<div class="nutrient-bar-track"><div class="nutrient-bar-fill ' + r.tier + '" style="width:' + Math.min(r.pct,100) + '%"></div></div>' +
-        '<div class="nutrient-pct ' + r.tier + '">' + r.pct + '%</div></div>';
+        '<div class="nutrient-pct ' + r.tier + '">' + r.pct + '%</div></div>' + tipHtml;
     }).join('');
 
     var ingredientsHtml = a.ingredients.length ? a.ingredients.map(function(i){
@@ -575,7 +606,7 @@
       '<div class="res-section"><h3><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="2"/></svg>FSSAI number</h3>' +
       '<div class="fssai-card"><div class="fssai-badge ' + (fssaiOk ? 'ok' : 'bad') + '">' + fssaiIcon + '</div>' +
       '<div><div class="fssai-num">' + (a.fssai.number || 'Not found') + '</div><div class="fssai-status">' + escapeHtml(a.fssai.reason) + '</div></div></div>' +
-      '<div class="fssai-roadmap">Format checked locally on your device. Live FoSCoS registry lookup \u2014 to confirm the license is active, not just correctly formatted \u2014 is on the roadmap.</div></div>' +
+      '<div class="fssai-roadmap">Format checked locally on your device \u2014 this confirms the number is <b>structured</b> correctly, not that the license is currently active. Confirming that needs a live FoSCoS lookup, which is either CAPTCHA-protected on FSSAI\u2019s own portal or sold commercially by third-party KYC APIs (Decentro, Surepass, IDfy, and others) \u2014 both out of scope here, so this stays an honest structural check, not a fake activity check. Verify manually at <a href="https://foscos.fssai.gov.in/" target="_blank" rel="noopener">foscos.fssai.gov.in</a> if in doubt.</div></div>' +
 
       '<div class="res-section"><h3><svg viewBox="0 0 24 24" fill="none"><path d="M12 21c4-4 7-7.5 7-11a7 7 0 1 0-14 0c0 3.5 3 7 7 11Z" stroke="currentColor" stroke-width="2"/></svg>Nutrients vs. daily limit</h3>' +
       nutrientRowsHtml +
@@ -583,6 +614,13 @@
 
       '<div class="res-section"><h3><svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Ingredients</h3>' +
       '<div class="chip-row">' + ingredientsHtml + '</div>' + riskBreakdownHtml + '</div>' +
+
+      '<div class="res-section reg-panel"><h3><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6l-8-3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>Know the rules</h3>' +
+      '<ul class="reg-list">' +
+      '<li>India\u2019s Supreme Court ordered FSSAI to act on front-of-pack warnings (Feb 2026); FSSAI\u2019s own Aug 2026 proposal only warns when a product is high in <b>two or more</b> of fat/sugar/salt \u2014 LabelLens flags any single one, today.</li>' +
+      '<li>The daily limits above are WHO guidance for a 2000-kcal reference diet, not FSSAI\u2019s exact (not-yet-public) per-serving cutoffs \u2014 a reasonable stand-in, not an official scale.</li>' +
+      '<li>\u201cE\u201d-numbers (like E211, E102 above) are standard food-safety codes for additives \u2014 preservatives, colours, emulsifiers. Not automatically harmful; the ones flagged here are ones health bodies suggest keeping an eye on.</li>' +
+      '</ul></div>' +
 
       '<div class="res-actions"><button class="btn btn-primary" type="button" id="logBtn">Log this scan</button>' +
       '<button class="btn btn-ghost" type="button" data-nav="scan" id="scanAnotherBtn">Scan another</button></div>' +
