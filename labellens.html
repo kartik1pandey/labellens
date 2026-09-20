@@ -40,6 +40,8 @@
   body {
     margin: 0;
     background: var(--paper);
+    background-image: radial-gradient(circle, rgba(27,42,34,.05) 1px, transparent 1px);
+    background-size: 22px 22px;
     color: var(--ink);
     font-family: var(--font-body);
     font-size: 16px;
@@ -130,9 +132,36 @@
   .how h2 { margin-bottom: 40px; max-width: 20ch; }
   .how-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 28px; }
   .how-step { border-top: 2.5px solid var(--ink); padding-top: 16px; }
+  .how-step .step-top { display: flex; align-items: center; justify-content: space-between; }
   .how-step .num { font-family: var(--font-display); font-size: 2.1rem; color: var(--ink-45); }
+  .how-step .icon-badge { width: 38px; height: 38px; border-radius: 50%; background: var(--card); border: 1.5px solid var(--line); display: flex; align-items: center; justify-content: center; flex: none; }
+  .how-step .icon-badge svg { width: 18px; height: 18px; color: var(--ink); }
   .how-step h3 { margin: 10px 0 8px; }
   .how-step p { color: var(--ink-70); font-size: .95rem; }
+
+  /* ---------- Small inline icons (nutrients, ingredient breakdown, empty states) ---------- */
+  .nutrient-name { display: flex; align-items: center; gap: 8px; }
+  .nutrient-name .n-icon { width: 17px; height: 17px; color: var(--ink-45); flex: none; }
+
+  .risk-breakdown { margin-top: 14px; }
+  .risk-breakdown .rb-track { display: flex; height: 9px; border-radius: 5px; overflow: hidden; background: var(--paper-2); }
+  .risk-breakdown .rb-seg.warn { background: var(--warn); }
+  .risk-breakdown .rb-seg.caution { background: var(--caution); }
+  .risk-breakdown .rb-seg.good { background: var(--good); }
+  .risk-breakdown .rb-legend { display: flex; gap: 16px; margin-top: 8px; font-size: .78rem; color: var(--ink-70); flex-wrap: wrap; }
+  .risk-breakdown .rb-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .risk-breakdown .rb-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+  .risk-breakdown .rb-dot.warn { background: var(--warn); } .risk-breakdown .rb-dot.caution { background: var(--caution); } .risk-breakdown .rb-dot.good { background: var(--good); }
+
+  .today-card .trend { display: inline-flex; align-items: center; gap: 3px; font-size: .74rem; font-weight: 700; margin-left: 8px; vertical-align: middle; }
+  .today-card .trend svg { width: 11px; height: 11px; }
+  .today-card .trend.up { color: var(--warn); }
+  .today-card .trend.down { color: var(--good); }
+  .today-card .trend.flat { color: var(--ink-45); }
+
+  .journal-empty { text-align: center; padding: 54px 20px; color: var(--ink-45); }
+  .journal-empty svg { width: 46px; height: 46px; color: var(--line-strong); margin-bottom: 14px; }
+  .journal-empty p { max-width: 32ch; margin: 0 auto; }
 
   @media (max-width: 860px) {
     .hero { grid-template-columns: 1fr; }
@@ -231,7 +260,6 @@
   .hist-flags { display: flex; gap: 6px; flex: none; }
   .hist-dot { width: 9px; height: 9px; border-radius: 50%; }
   .hist-dot.good { background: var(--good); } .hist-dot.caution { background: var(--caution); } .hist-dot.warn { background: var(--warn); }
-  .journal-empty { color: var(--ink-45); padding: 30px 0; }
 
   @media (max-width: 640px) { .today-grid { grid-template-columns: 1fr; } .nutrient-row { grid-template-columns: 90px 1fr 70px; gap: 10px; } }
 </style>
@@ -293,9 +321,18 @@
         <div class="how">
           <h2>From packet to plain answer</h2>
           <div class="how-grid">
-            <div class="how-step"><div class="num">01</div><h3>Photograph the back</h3><p>The ingredients list and nutrition panel — one photo, held steady for a second.</p></div>
-            <div class="how-step"><div class="num">02</div><h3>Get a real read</h3><p>Ingredients sorted, nutrients checked against daily limits, the FSSAI number checked for a valid format.</p></div>
-            <div class="how-step"><div class="num">03</div><h3>Log it, see the pattern</h3><p>Every scan adds to your day — sugar, salt and saturated fat tracked against what you'd actually want to stay under.</p></div>
+            <div class="how-step">
+              <div class="step-top"><div class="num">01</div><div class="icon-badge"><svg viewBox="0 0 24 24" fill="none"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.2" stroke="currentColor" stroke-width="2"/></svg></div></div>
+              <h3>Photograph the back</h3><p>The ingredients list and nutrition panel — one photo, held steady for a second.</p>
+            </div>
+            <div class="how-step">
+              <div class="step-top"><div class="num">02</div><div class="icon-badge"><svg viewBox="0 0 24 24" fill="none"><circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7.5 10.5l1.8 1.8 3.7-3.7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+              <h3>Get a real read</h3><p>Ingredients sorted, nutrients checked against daily limits, the FSSAI number checked for a valid format.</p>
+            </div>
+            <div class="how-step">
+              <div class="step-top"><div class="num">03</div><div class="icon-badge"><svg viewBox="0 0 24 24" fill="none"><path d="M4 19V5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z" stroke="currentColor" stroke-width="2"/><path d="M8 15l2.5-3.5 2.5 2 3-4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+              <h3>Log it, see the pattern</h3><p>Every scan adds to your day — sugar, salt and saturated fat tracked against what you'd actually want to stay under.</p>
+            </div>
           </div>
         </div>
       </div>
@@ -499,15 +536,22 @@
   }
 
   // ---------- Results rendering ----------
+  var NUTRIENT_ICONS = {
+    sugar: '<svg class="n-icon" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 4v10l-7 4-7-4V7l7-4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+    sodium: '<svg class="n-icon" viewBox="0 0 24 24" fill="none"><path d="M9 3h6l1 4H8l1-4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 7h8l1 13a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1L8 7Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="10.5" cy="12" r=".6" fill="currentColor"/><circle cx="13.5" cy="12" r=".6" fill="currentColor"/><circle cx="12" cy="15" r=".6" fill="currentColor"/></svg>',
+    satfat: '<svg class="n-icon" viewBox="0 0 24 24" fill="none"><path d="M12 3c3 4 6 7.5 6 11a6 6 0 1 1-12 0c0-3.5 3-7 6-11Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>'
+  };
+
   function renderResults(a) {
     var resultsBody = document.getElementById('resultsBody');
     var nutrientRowsHtml = a.nutrientRows.map(function(r){
+      var icon = NUTRIENT_ICONS[r.key] || '';
       if (r.pct === null) {
-        return '<div class="nutrient-row"><div class="nutrient-name">' + r.label + '<small>not on label</small></div>' +
+        return '<div class="nutrient-row"><div class="nutrient-name">' + icon + '<span class="n-text">' + r.label + '<small>not on label</small></span></div>' +
           '<div class="nutrient-bar-track"><div class="nutrient-bar-fill" style="width:0%"></div></div>' +
           '<div class="nutrient-pct" style="color:var(--ink-45)">\u2014</div></div>';
       }
-      return '<div class="nutrient-row"><div class="nutrient-name">' + r.label + '<small>' + r.value + r.unit + ' per serving</small></div>' +
+      return '<div class="nutrient-row"><div class="nutrient-name">' + icon + '<span class="n-text">' + r.label + '<small>' + r.value + r.unit + ' per serving</small></span></div>' +
         '<div class="nutrient-bar-track"><div class="nutrient-bar-fill ' + r.tier + '" style="width:' + Math.min(r.pct,100) + '%"></div></div>' +
         '<div class="nutrient-pct ' + r.tier + '">' + r.pct + '%</div></div>';
     }).join('');
@@ -517,6 +561,21 @@
       var why = i.why ? ' <span class="why">\u00b7 ' + escapeHtml(i.why) + '</span>' : '';
       return '<span class="chip' + cls + '">' + escapeHtml(i.name) + why + '</span>';
     }).join('') : '<p style="color:var(--ink-45)">No ingredient list detected.</p>';
+
+    var riskCounts = { warn: 0, caution: 0, good: 0 };
+    a.ingredients.forEach(function(i){ riskCounts[i.flag === 'warn' ? 'warn' : (i.flag === 'caution' ? 'caution' : 'good')]++; });
+    var riskTotal = a.ingredients.length;
+    var riskBreakdownHtml = riskTotal ? (
+      '<div class="risk-breakdown"><div class="rb-track">' +
+      (riskCounts.warn ? '<div class="rb-seg warn" style="width:' + (riskCounts.warn / riskTotal * 100) + '%"></div>' : '') +
+      (riskCounts.caution ? '<div class="rb-seg caution" style="width:' + (riskCounts.caution / riskTotal * 100) + '%"></div>' : '') +
+      (riskCounts.good ? '<div class="rb-seg good" style="width:' + (riskCounts.good / riskTotal * 100) + '%"></div>' : '') +
+      '</div><div class="rb-legend">' +
+      '<span><span class="rb-dot warn"></span>' + riskCounts.warn + ' flagged</span>' +
+      '<span><span class="rb-dot caution"></span>' + riskCounts.caution + ' caution</span>' +
+      '<span><span class="rb-dot good"></span>' + riskCounts.good + ' clear</span>' +
+      '</div></div>'
+    ) : '';
 
     var fssaiOk = a.fssai.ok;
     var fssaiIcon = fssaiOk
@@ -537,7 +596,7 @@
       '<div class="nutrient-note">Bands: under 15% of a WHO daily limit reads good, 15\u201330% caution, above 30% high \u2014 per serving as printed.</div></div>' +
 
       '<div class="res-section"><h3><svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Ingredients</h3>' +
-      '<div class="chip-row">' + ingredientsHtml + '</div></div>' +
+      '<div class="chip-row">' + ingredientsHtml + '</div>' + riskBreakdownHtml + '</div>' +
 
       '<div class="res-actions"><button class="btn btn-primary" type="button" id="logBtn">Log this scan</button>' +
       '<button class="btn btn-ghost" type="button" data-nav="scan" id="scanAnotherBtn">Scan another</button></div>' +
@@ -600,16 +659,26 @@
 
     if (!scans.length) {
       todayGrid.innerHTML = '';
-      historyList.innerHTML = '<div class="journal-empty">Nothing logged yet \u2014 scan a label and log it to start your journal.</div>';
+      historyList.innerHTML = '<div class="journal-empty">' +
+        '<svg viewBox="0 0 24 24" fill="none"><path d="M4 19V5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z" stroke="currentColor" stroke-width="1.6"/><path d="M9 8h6M9 12h6M9 16h3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>' +
+        '<p>Nothing logged yet \u2014 scan a label and log it to start your journal.</p></div>';
       renderTrendChart([]);
       return;
     }
 
     var startOfDay = new Date(); startOfDay.setHours(0,0,0,0);
+    var startOfYesterday = startOfDay.getTime() - 86400000;
     var todayScans = scans.filter(function(s){ return s.ts >= startOfDay.getTime(); });
+    var yesterdayScans = scans.filter(function(s){ return s.ts >= startOfYesterday && s.ts < startOfDay.getTime(); });
     var totals = { sugar: 0, sodium: 0, satfat: 0 };
+    var yesterdayTotals = { sugar: 0, sodium: 0, satfat: 0 };
     todayScans.forEach(function(s){ ['sugar','sodium','satfat'].forEach(function(k){ totals[k] += (s.nutrients && s.nutrients[k] && s.nutrients[k].value) || 0; }); });
+    yesterdayScans.forEach(function(s){ ['sugar','sodium','satfat'].forEach(function(k){ yesterdayTotals[k] += (s.nutrients && s.nutrients[k] && s.nutrients[k].value) || 0; }); });
 
+    var TREND_ICONS = {
+      up: '<svg viewBox="0 0 24 24" fill="none"><path d="M12 19V5m0 0-6 6m6-6 6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+      down: '<svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14m0 0-6-6m6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    };
     var cards = [
       { key: 'sugar', label: 'Sugar today', unit: 'g', limit: DAILY_LIMITS.sugar_g },
       { key: 'sodium', label: 'Sodium today', unit: 'mg', limit: DAILY_LIMITS.sodium_mg },
@@ -619,8 +688,14 @@
       var val = Math.round(totals[c.key]);
       var pct = Math.min(Math.round((val / c.limit) * 100), 100);
       var tier = pct >= 100 ? 'warn' : (pct >= 60 ? 'caution' : 'good');
+      var yVal = Math.round(yesterdayTotals[c.key]);
+      var trendHtml = '';
+      if (yVal > 0) {
+        var dir = val > yVal ? 'up' : (val < yVal ? 'down' : 'flat');
+        if (dir !== 'flat') trendHtml = '<span class="trend ' + dir + '">' + TREND_ICONS[dir] + Math.round(Math.abs(val - yVal) / yVal * 100) + '%</span>';
+      }
       return '<div class="today-card"><div class="label">' + c.label + '</div>' +
-        '<div class="amount">' + val + '<span>/' + c.limit + c.unit + '</span></div>' +
+        '<div class="amount">' + val + '<span>/' + c.limit + c.unit + '</span>' + trendHtml + '</div>' +
         '<div class="nutrient-bar-track"><div class="nutrient-bar-fill ' + tier + '" style="width:' + pct + '%"></div></div></div>';
     }).join('');
 
