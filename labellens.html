@@ -40,8 +40,6 @@
   body {
     margin: 0;
     background: var(--paper);
-    background-image: radial-gradient(circle, rgba(27,42,34,.05) 1px, transparent 1px);
-    background-size: 22px 22px;
     color: var(--ink);
     font-family: var(--font-body);
     font-size: 16px;
@@ -132,10 +130,7 @@
   .how h2 { margin-bottom: 40px; max-width: 20ch; }
   .how-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 28px; }
   .how-step { border-top: 2.5px solid var(--ink); padding-top: 16px; }
-  .how-step .step-top { display: flex; align-items: center; justify-content: space-between; }
   .how-step .num { font-family: var(--font-display); font-size: 2.1rem; color: var(--ink-45); }
-  .how-step .icon-badge { width: 38px; height: 38px; border-radius: 50%; background: var(--card); border: 1.5px solid var(--line); display: flex; align-items: center; justify-content: center; flex: none; }
-  .how-step .icon-badge svg { width: 18px; height: 18px; color: var(--ink); }
   .how-step h3 { margin: 10px 0 8px; }
   .how-step p { color: var(--ink-70); font-size: .95rem; }
 
@@ -321,18 +316,9 @@
         <div class="how">
           <h2>From packet to plain answer</h2>
           <div class="how-grid">
-            <div class="how-step">
-              <div class="step-top"><div class="num">01</div><div class="icon-badge"><svg viewBox="0 0 24 24" fill="none"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.2" stroke="currentColor" stroke-width="2"/></svg></div></div>
-              <h3>Photograph the back</h3><p>The ingredients list and nutrition panel — one photo, held steady for a second.</p>
-            </div>
-            <div class="how-step">
-              <div class="step-top"><div class="num">02</div><div class="icon-badge"><svg viewBox="0 0 24 24" fill="none"><circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7.5 10.5l1.8 1.8 3.7-3.7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
-              <h3>Get a real read</h3><p>Ingredients sorted, nutrients checked against daily limits, the FSSAI number checked for a valid format.</p>
-            </div>
-            <div class="how-step">
-              <div class="step-top"><div class="num">03</div><div class="icon-badge"><svg viewBox="0 0 24 24" fill="none"><path d="M4 19V5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z" stroke="currentColor" stroke-width="2"/><path d="M8 15l2.5-3.5 2.5 2 3-4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
-              <h3>Log it, see the pattern</h3><p>Every scan adds to your day — sugar, salt and saturated fat tracked against what you'd actually want to stay under.</p>
-            </div>
+            <div class="how-step"><div class="num">01</div><h3>Photograph the back</h3><p>The ingredients list and nutrition panel — one photo, held steady for a second.</p></div>
+            <div class="how-step"><div class="num">02</div><h3>Get a real read</h3><p>Ingredients sorted, nutrients checked against daily limits, the FSSAI number checked for a valid format.</p></div>
+            <div class="how-step"><div class="num">03</div><h3>Log it, see the pattern</h3><p>Every scan adds to your day — sugar, salt and saturated fat tracked against what you'd actually want to stay under.</p></div>
           </div>
         </div>
       </div>
